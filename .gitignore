@@ -1,0 +1,9 @@
+# IntelliJ IDEA files
+*.iml
+.idea/
+
+# Microsoft VSCode files
+.vscode/
+
+# Maven build files
+target/

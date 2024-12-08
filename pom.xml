@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>io.github.awesome-java-web</groupId>
+    <artifactId>sort-dependency-maven-plugin</artifactId>
+    <packaging>maven-plugin</packaging>
+    <version>1.0.0-SNAPSHOT</version>
+
+    <name>sort-dependency-maven-plugin</name>
+    <description>Automatically sort dependencies in the pom.xml</description>
+    <url>https://github.com/awesome-java-web/sort-dependency-maven-plugin</url>
+
+    <organization>
+        <name>Awesome Java Web</name>
+        <url>https://github.com/awesome-java-web</url>
+    </organization>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>https://opensource.org/license/mit</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>codeboyzhou</name>
+            <email>imzhouchen@gmail.com</email>
+            <organization>Awesome Java Web</organization>
+            <organizationUrl>https://github.com/awesome-java-web</organizationUrl>
+        </developer>
+    </developers>
+
+    <scm>
+        <url>https://github.com/awesome-java-web/sort-dependency-maven-plugin</url>
+        <connection>scm:git:git://github.com/awesome-java-web/sort-dependency-maven-plugin.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/awesome-java-web/sort-dependency-maven-plugin.git</developerConnection>
+    </scm>
+
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/awesome-java-web/sort-dependency-maven-plugin/issues</url>
+    </issueManagement>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2</url>
+        </repository>
+    </distributionManagement>
+
+    <properties>
+        <java.version>1.8</java.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <!--============================ dependency version numbers ========================-->
+        <maven-core.version>3.8.1</maven-core.version>
+        <maven-plugin-api.version>3.8.1</maven-plugin-api.version>
+        <maven-plugin-annotations.version>3.8.1</maven-plugin-annotations.version>
+    </properties>
+
+    <build>
+        <plugins>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-core</artifactId>
+            <version>${maven-core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-plugin-api</artifactId>
+            <version>${maven-plugin-api.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.plugin-tools</groupId>
+            <artifactId>maven-plugin-annotations</artifactId>
+            <version>${maven-plugin-annotations.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+</project>
