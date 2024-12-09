@@ -68,6 +68,7 @@ public final class XmlHelper {
         try {
             Transformer xmlTransformer = xmlTransformerFactory.newTransformer();
             xmlTransformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            xmlTransformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
             DOMSource xmlSource = new DOMSource(xmlDocument);
             StreamResult xmlResult = new StreamResult(xmlFile);
             xmlTransformer.transform(xmlSource, xmlResult);
