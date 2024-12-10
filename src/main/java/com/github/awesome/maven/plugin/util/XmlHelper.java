@@ -30,7 +30,7 @@ public final class XmlHelper {
      * Private constructor to prevent instantiation of the utility class.
      * This class should not be instantiated.
      */
-    private XmlHelper() {
+    XmlHelper() {
         throw new UnsupportedOperationException("Utility class should not be instantiated");
     }
 
