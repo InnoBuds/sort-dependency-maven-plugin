@@ -67,6 +67,7 @@
         <!--============================ dependency version numbers ========================-->
         <maven-core.version>3.8.1</maven-core.version>
         <maven-plugin-api.version>3.8.1</maven-plugin-api.version>
+        <maven-plugin-plugin.version>3.8.1</maven-plugin-plugin.version>
         <maven-plugin-annotations.version>3.8.1</maven-plugin-annotations.version>
         <junit5.version>5.10.2</junit5.version>
         <mockito.version>4.11.0</mockito.version>
@@ -76,6 +77,11 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-plugin-plugin</artifactId>
+                <version>${maven-plugin-plugin.version}</version>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
