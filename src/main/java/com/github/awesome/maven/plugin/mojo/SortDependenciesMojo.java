@@ -17,7 +17,7 @@ import java.util.TreeMap;
 
 /**
  * A Mojo that sorts the dependencies in the POM file of a Maven project.
- * This Mojo sorts both the `<dependencies>` and `<dependencyManagement>` elements by the groupId and artifactId of each dependency.
+ * This Mojo sorts both the &lt;dependencies&gt; and &lt;dependencyManagement&gt; elements by the groupId and artifactId of each dependency.
  * The sorting is done during the `compile` phase of the Maven build lifecycle.
  */
 @Mojo(name = "sort-dependencies", defaultPhase = LifecyclePhase.COMPILE)
@@ -32,7 +32,7 @@ public class SortDependenciesMojo extends AbstractMojo {
 
     /**
      * Executes the Mojo to sort dependencies in the project's POM file.
-     * This method parses the POM file, sorts the `<dependencies>` and `<dependencyManagement>` sections,
+     * This method parses the POM file, sorts the &lt;dependencies&gt; and &lt;dependencyManagement&gt; sections,
      * and then writes the modified POM file back to disk.
      *
      * @throws MojoExecutionException If there is an error during the execution of the Mojo,
@@ -49,7 +49,7 @@ public class SortDependenciesMojo extends AbstractMojo {
     }
 
     /**
-     * Sorts the dependencies within a specific parent element (either `<dependencies>` or `<dependencyManagement>`)
+     * Sorts the dependencies within a specific parent element (either &lt;dependencies&gt; or &lt;dependencyManagement&gt;)
      * in the POM file. The sorting is done alphabetically by groupId, and then by artifactId.
      *
      * @param pomXmlDocument    The parsed POM document.
