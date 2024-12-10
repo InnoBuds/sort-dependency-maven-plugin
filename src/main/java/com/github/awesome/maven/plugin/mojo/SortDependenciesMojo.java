@@ -13,8 +13,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.TreeMap;
 
 /**
  * A Mojo that sorts the dependencies in the POM file of a Maven project.
@@ -73,33 +72,28 @@ public class SortDependenciesMojo extends AbstractMojo {
         }
 
         // Collect all dependency elements
-        List<Element> dependencyElementList = new ArrayList<>();
+        TreeMap<String, Element> dependencyElementMap = new TreeMap<>();
         for (int i = 0, length = dependencyNodeList.getLength(); i < length; i++) {
             Node node = dependencyNodeList.item(i);
             if (node.getNodeType() == Node.ELEMENT_NODE) {
                 Element element = (Element) node;
-                dependencyElementList.add(element);
+                final String groupId = element.getElementsByTagName("groupId").item(0).getTextContent();
+                final String artifactId = element.getElementsByTagName("artifactId").item(0).getTextContent();
+                final String treeMapKey = groupId + ":" + artifactId;
+                dependencyElementMap.put(treeMapKey, element);
             }
         }
-
-        // Sort the dependencies based on groupId and artifactId
-        dependencyElementList.sort((element1, element2) -> {
-            final String groupId1 = element1.getElementsByTagName("groupId").item(0).getTextContent();
-            final String groupId2 = element2.getElementsByTagName("groupId").item(0).getTextContent();
-            final String artifactId1 = element1.getElementsByTagName("artifactId").item(0).getTextContent();
-            final String artifactId2 = element2.getElementsByTagName("artifactId").item(0).getTextContent();
-            return groupId1.equals(groupId2) ? artifactId1.compareTo(artifactId2) : groupId1.compareTo(groupId2);
-        });
 
         // Clear all existing dependencies and append the sorted ones
         while (dependenciesElement.hasChildNodes()) {
             dependenciesElement.removeChild(dependenciesElement.getFirstChild());
         }
-        dependencyElementList.forEach(dependenciesElement::appendChild);
+        dependencyElementMap.forEach((key, element) -> dependenciesElement.appendChild(element));
 
-        getLog().info(String.format("Sorted %d <dependency> element for module %s and parent element <%s>",
-            dependencyElementList.size(), projectArtifactId, parentElementName)
-        );
+        getLog().info(String.format(
+            "Sorted %d <dependency> element for module %s and parent element <%s>",
+            dependencyElementMap.size(), projectArtifactId, parentElementName
+        ));
     }
 
 }
