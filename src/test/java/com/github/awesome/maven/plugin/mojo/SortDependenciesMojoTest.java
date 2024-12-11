@@ -49,7 +49,7 @@ class SortDependenciesMojoTest {
     }
 
     @Test
-    void testExecute_DependenciesIncludeDependency() throws MojoExecutionException, NoSuchFieldException, IllegalAccessException, IOException {
+    void testExecute_DependenciesIncludeDependency() throws MojoExecutionException, NoSuchFieldException, IllegalAccessException {
         SortDependenciesMojo mojo = new SortDependenciesMojo();
         MavenProject project = mock(MavenProject.class);
         File pomFile = new File("src/test/resources/test-pom-dependencies-include-dependency.xml");
