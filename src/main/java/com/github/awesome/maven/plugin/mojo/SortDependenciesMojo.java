@@ -17,7 +17,7 @@ import java.util.TreeMap;
 
 /**
  * A Mojo that sorts the dependencies in the POM file of a Maven project.
- * This Mojo sorts both the &lt;dependencies&gt; and &lt;dependencyManagement&gt; elements by the groupId and artifactId of each dependency.
+ * This Mojo sorts both the &lt;dependencies&gt; elements by the groupId and artifactId of each dependency.
  * The sorting is done during the `compile` phase of the Maven build lifecycle.
  */
 @Mojo(name = "sort-dependencies", defaultPhase = LifecyclePhase.COMPILE)
@@ -32,7 +32,7 @@ public class SortDependenciesMojo extends AbstractMojo {
 
     /**
      * Executes the Mojo to sort dependencies in the project's POM file.
-     * This method parses the POM file, sorts the &lt;dependencies&gt; and &lt;dependencyManagement&gt; sections,
+     * This method parses the POM file, sorts the &lt;dependencies&gt; sections,
      * and then writes the modified POM file back to disk.
      *
      * @throws MojoExecutionException If there is an error during the execution of the Mojo,
@@ -43,24 +43,22 @@ public class SortDependenciesMojo extends AbstractMojo {
         File pomFile = project.getFile();
         Document pomXmlDocument = XmlHelper.parse(pomFile);
         final String projectArtifactId = project.getArtifactId();
-        sortDependencyElement(pomXmlDocument, "dependencies", projectArtifactId);
-        sortDependencyElement(pomXmlDocument, "dependencyManagement", projectArtifactId);
+        sortDependencyElement(pomXmlDocument, projectArtifactId);
         XmlHelper.write(pomFile, pomXmlDocument);
     }
 
     /**
-     * Sorts the dependencies within a specific parent element (either &lt;dependencies&gt; or &lt;dependencyManagement&gt;)
-     * in the POM file. The sorting is done alphabetically by groupId, and then by artifactId.
+     * Sorts the &lt;dependency&gt; elements in the POM file.
+     * The sorting is done alphabetically by groupId, and then by artifactId.
      *
      * @param pomXmlDocument    The parsed POM document.
-     * @param parentElementName The name of the parent element that contains the dependencies, either "dependencies" or "dependencyManagement".
      * @param projectArtifactId The artifactId of the project, used for logging purposes.
      */
-    private void sortDependencyElement(Document pomXmlDocument, final String parentElementName, final String projectArtifactId) {
-        getLog().info(String.format("Sorting <%s> element for module %s", parentElementName, projectArtifactId));
-        NodeList dependenciesNode = pomXmlDocument.getElementsByTagName(parentElementName);
+    private void sortDependencyElement(Document pomXmlDocument, final String projectArtifactId) {
+        getLog().info(String.format("Sorting <dependencies> element for module %s", projectArtifactId));
+        NodeList dependenciesNode = pomXmlDocument.getElementsByTagName("dependencies");
         if (dependenciesNode.getLength() == 0) {
-            getLog().info(String.format("No <%s> element found in module %s", parentElementName, projectArtifactId));
+            getLog().info(String.format("No <dependencies> element found in module %s", projectArtifactId));
             return;
         }
 
@@ -90,10 +88,7 @@ public class SortDependenciesMojo extends AbstractMojo {
         }
         dependencyElementMap.forEach((key, element) -> dependenciesElement.appendChild(element));
 
-        getLog().info(String.format(
-            "Sorted %d <dependency> element for module %s and parent element <%s>",
-            dependencyElementMap.size(), projectArtifactId, parentElementName
-        ));
+        getLog().info(String.format("Sorted %d <dependency> element for module %s", dependencyElementMap.size(), projectArtifactId));
     }
 
 }
