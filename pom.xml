@@ -8,7 +8,7 @@
     <groupId>io.github.awesome-java-web</groupId>
     <artifactId>sort-dependency-maven-plugin</artifactId>
     <packaging>maven-plugin</packaging>
-    <version>1.0.0</version>
+    <version>1.1.0-SNAPSHOT</version>
 
     <name>sort-dependency-maven-plugin</name>
     <description>Automatically sort dependencies in the pom.xml</description>
