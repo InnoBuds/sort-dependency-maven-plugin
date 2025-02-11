@@ -20,11 +20,11 @@ import static org.mockito.Mockito.*;
 class SortDependenciesMojoTest {
 
     @Test
-    void testExecute_NoAnyDependency() throws MojoExecutionException, NoSuchFieldException, IllegalAccessException {
+    void testExecute_NoAnyDependencyTag() throws MojoExecutionException, NoSuchFieldException, IllegalAccessException {
         SortDependenciesMojo mojo = new SortDependenciesMojo();
         MavenProject project = mock(MavenProject.class);
-        when(project.getFile()).thenReturn(new File("src/test/resources/test-pom-no-any-dependency.xml"));
-        when(project.getArtifactId()).thenReturn("test-pom-no-any-dependency");
+        when(project.getFile()).thenReturn(new File("src/test/resources/test-pom-no-any-dependency-tag.xml"));
+        when(project.getArtifactId()).thenReturn("test-pom-no-any-dependency-tag");
         Field projectField = SortDependenciesMojo.class.getDeclaredField("project");
         projectField.setAccessible(true);
         projectField.set(mojo, project);
@@ -34,11 +34,11 @@ class SortDependenciesMojoTest {
     }
 
     @Test
-    void testExecute_OnlyDependenciesTag() throws MojoExecutionException, NoSuchFieldException, IllegalAccessException {
+    void testExecute_EmptyDependenciesTag() throws MojoExecutionException, NoSuchFieldException, IllegalAccessException {
         SortDependenciesMojo mojo = new SortDependenciesMojo();
         MavenProject project = mock(MavenProject.class);
-        when(project.getFile()).thenReturn(new File("src/test/resources/test-pom-only-dependencies-tag.xml"));
-        when(project.getArtifactId()).thenReturn("test-pom-only-dependencies-tag");
+        when(project.getFile()).thenReturn(new File("src/test/resources/test-pom-empty-dependencies-tag.xml"));
+        when(project.getArtifactId()).thenReturn("test-pom-empty-dependencies-tag");
         Field projectField = SortDependenciesMojo.class.getDeclaredField("project");
         projectField.setAccessible(true);
         projectField.set(mojo, project);
@@ -48,12 +48,12 @@ class SortDependenciesMojoTest {
     }
 
     @Test
-    void testExecute_DependenciesIncludeDependency() throws MojoExecutionException, NoSuchFieldException, IllegalAccessException {
+    void testExecute_DependenciesIncludeDependencyTags() throws MojoExecutionException, NoSuchFieldException, IllegalAccessException {
         SortDependenciesMojo mojo = new SortDependenciesMojo();
         MavenProject project = mock(MavenProject.class);
-        File pomFile = new File("src/test/resources/test-pom-dependencies-include-dependency.xml");
+        File pomFile = new File("src/test/resources/test-pom-dependencies-include-dependency-tags.xml");
         when(project.getFile()).thenReturn(pomFile);
-        when(project.getArtifactId()).thenReturn("test-pom-dependencies-include-dependency");
+        when(project.getArtifactId()).thenReturn("test-pom-dependencies-include-dependency-tags");
         Field projectField = SortDependenciesMojo.class.getDeclaredField("project");
         projectField.setAccessible(true);
         projectField.set(mojo, project);
