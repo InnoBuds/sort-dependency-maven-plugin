@@ -83,7 +83,7 @@ public class SortPropertiesVersionMojo extends AbstractMojo {
                 Element element = (Element) node;
                 final String elementTagName = element.getTagName();
                 // Skip elements that are not version properties or we don't want to sort
-                if (!elementTagName.endsWith(".version") || elementTagName.equals("java.version")) {
+                if (!elementTagName.endsWith(".version") || elementTagName.equals("java.version") || elementTagName.equals("kotlin.version")) {
                     getLog().info(String.format("Skipping element %s in <properties> element for module %s", elementTagName, projectArtifactId));
                     skippedChildNodes.add(element);
                     continue;
