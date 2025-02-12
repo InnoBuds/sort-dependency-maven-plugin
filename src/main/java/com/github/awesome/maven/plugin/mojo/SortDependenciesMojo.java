@@ -13,6 +13,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.TreeMap;
 
 /**
@@ -66,22 +68,27 @@ public class SortDependenciesMojo extends AbstractMojo {
         }
 
         Element dependenciesElement = (Element) dependenciesNode.item(0);
-        NodeList dependencyNodeList = dependenciesElement.getElementsByTagName("dependency");
-        if (dependencyNodeList.getLength() == 0) {
+        if (dependenciesElement.getElementsByTagName("dependency").getLength() == 0) {
             getLog().info("No <dependency> element found in module " + projectArtifactId);
             return;
         }
 
         // Collect all dependency elements
+        NodeList dependenciesElementChildNodes = dependenciesElement.getChildNodes();
         TreeMap<String, Element> dependencyElementMap = new TreeMap<>();
-        for (int i = 0, length = dependencyNodeList.getLength(); i < length; i++) {
-            Node node = dependencyNodeList.item(i);
+        Map<String, Node> commentsMap = new HashMap<>();
+        for (int i = 0, length = dependenciesElementChildNodes.getLength(); i < length; i++) {
+            Node node = dependenciesElementChildNodes.item(i);
             if (node.getNodeType() == Node.ELEMENT_NODE) {
                 Element element = (Element) node;
-                final String groupId = element.getElementsByTagName("groupId").item(0).getTextContent();
-                final String artifactId = element.getElementsByTagName("artifactId").item(0).getTextContent();
-                final String treeMapKey = groupId + ":" + artifactId;
-                dependencyElementMap.put(treeMapKey, element);
+                final String elementUniqueKey = getDependencyElementUniqueKey(element);
+                dependencyElementMap.put(elementUniqueKey, element);
+                // Check for comment nodes before the <dependency> element
+                Node previousSibling = element.getPreviousSibling();
+                while (previousSibling != null && previousSibling.getNodeType() != Node.COMMENT_NODE) {
+                    previousSibling = previousSibling.getPreviousSibling();
+                }
+                commentsMap.put(elementUniqueKey, previousSibling);
             }
         }
 
@@ -89,9 +96,28 @@ public class SortDependenciesMojo extends AbstractMojo {
         while (dependenciesElement.hasChildNodes()) {
             dependenciesElement.removeChild(dependenciesElement.getFirstChild());
         }
-        dependencyElementMap.forEach((key, element) -> dependenciesElement.appendChild(element));
+        dependencyElementMap.forEach((key, element) -> {
+            final String elementUniqueKey = getDependencyElementUniqueKey(element);
+            Node commentNode = commentsMap.get(elementUniqueKey);
+            if (commentNode != null) {
+                dependenciesElement.appendChild(commentNode);
+            }
+            dependenciesElement.appendChild(element);
+        });
 
         getLog().info(String.format("Sorted %d <dependency> element for module %s", dependencyElementMap.size(), projectArtifactId));
+    }
+
+    /**
+     * Returns a unique key for a dependency element based on its groupId and artifactId.
+     *
+     * @param element The dependency element.
+     * @return A unique key for the dependency element.
+     */
+    private String getDependencyElementUniqueKey(Element element) {
+        final String groupId = element.getElementsByTagName("groupId").item(0).getTextContent();
+        final String artifactId = element.getElementsByTagName("artifactId").item(0).getTextContent();
+        return groupId + ":" + artifactId;
     }
 
 }

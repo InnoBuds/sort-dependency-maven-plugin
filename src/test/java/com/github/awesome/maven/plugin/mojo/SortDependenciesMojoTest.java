@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.*;
 
 class SortDependenciesMojoTest {
@@ -58,25 +59,44 @@ class SortDependenciesMojoTest {
         projectField.setAccessible(true);
         projectField.set(mojo, project);
         mojo.execute();
+
         Document pomXmlDocument = XmlHelper.parse(pomFile);
-        Node dependencies = pomXmlDocument.getElementsByTagName("dependencies").item(0);
-        NodeList dependencyNodeList = dependencies.getChildNodes();
-        List<String> dependencyInfo = new ArrayList<>(dependencyNodeList.getLength());
-        for (int i = 0; i < dependencyNodeList.getLength(); i++) {
-            Node dependencyNode = dependencyNodeList.item(i);
-            if (dependencyNode.getNodeType() == Node.ELEMENT_NODE) {
-                Element dependencyElement = (Element) dependencyNode;
-                final String groupId = dependencyElement.getElementsByTagName("groupId").item(0).getTextContent();
-                final String artifactId = dependencyElement.getElementsByTagName("artifactId").item(0).getTextContent();
-                final String version = dependencyElement.getElementsByTagName("version").item(0).getTextContent();
-                dependencyInfo.add(groupId + ":" + artifactId + ":" + version);
+        Node dependenciesNode = pomXmlDocument.getElementsByTagName("dependencies").item(0);
+        NodeList dependenciesChildNodes = dependenciesNode.getChildNodes();
+        List<String> commentList = new ArrayList<>();
+        List<String> elementUniqueKeyList = new ArrayList<>();
+        for (int i = 0; i < dependenciesChildNodes.getLength(); i++) {
+            Node childNode = dependenciesChildNodes.item(i);
+            if (childNode.getNodeType() == Node.ELEMENT_NODE) {
+                Element dependencyElement = (Element) childNode;
+                elementUniqueKeyList.add(getDependencyElementUniqueKey(dependencyElement));
+                // Check for comment nodes before the <dependency> element
+                Node previousSibling = dependencyElement.getPreviousSibling();
+                while (previousSibling != null && previousSibling.getNodeType() != Node.COMMENT_NODE) {
+                    previousSibling = previousSibling.getPreviousSibling();
+                }
+                commentList.add(previousSibling == null ? null : previousSibling.getTextContent().trim());
             }
         }
-        assertEquals("com.google:guava:33.3.1-jre", dependencyInfo.get(0));
-        assertEquals("org.apache.commons:commons-collections4:4.4", dependencyInfo.get(1));
-        assertEquals("org.apache.commons:commons-lang3:3.17.0", dependencyInfo.get(2));
+
+        assertNull(commentList.get(0));
+        assertEquals("https://mvnrepository.com/artifact/com.google.guava/guava", commentList.get(1));
+        assertEquals("https://mvnrepository.com/artifact/org.apache.commons/commons-collections4", commentList.get(2));
+        assertEquals("https://mvnrepository.com/artifact/org.apache.commons/commons-lang3", commentList.get(3));
+        assertEquals("com.alibaba:fastjson:1.2.83", elementUniqueKeyList.get(0));
+        assertEquals("com.google:guava:33.3.1-jre", elementUniqueKeyList.get(1));
+        assertEquals("org.apache.commons:commons-collections4:4.4", elementUniqueKeyList.get(2));
+        assertEquals("org.apache.commons:commons-lang3:3.17.0", elementUniqueKeyList.get(3));
+
         verify(project).getFile();
         verify(project).getArtifactId();
+    }
+
+    private String getDependencyElementUniqueKey(Element element) {
+        final String groupId = element.getElementsByTagName("groupId").item(0).getTextContent();
+        final String artifactId = element.getElementsByTagName("artifactId").item(0).getTextContent();
+        final String version = element.getElementsByTagName("version").item(0).getTextContent();
+        return groupId + ":" + artifactId + ":" + version;
     }
 
 }
