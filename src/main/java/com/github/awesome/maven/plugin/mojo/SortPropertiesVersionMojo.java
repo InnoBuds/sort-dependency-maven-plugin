@@ -13,9 +13,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * A Mojo that sorts the properties in the POM file of a Maven project.
@@ -76,7 +74,8 @@ public class SortPropertiesVersionMojo extends AbstractMojo {
 
         // Collect all properties elements
         List<Element> skippedChildNodes = new ArrayList<>();
-        TreeMap<String, Element> sortedChildNodesMap = new TreeMap<>();
+        List<Element> sortedChildNodes = new ArrayList<>();
+        Map<String, Node> commentsMap = new HashMap<>();
         for (int i = 0, length = childNodes.getLength(); i < length; i++) {
             Node node = childNodes.item(i);
             if (node.getNodeType() == Node.ELEMENT_NODE) {
@@ -88,7 +87,23 @@ public class SortPropertiesVersionMojo extends AbstractMojo {
                     skippedChildNodes.add(element);
                     continue;
                 }
-                sortedChildNodesMap.put(elementTagName, element);
+                sortedChildNodes.add(element);
+                // Check for comment nodes before the element
+                Node previousSibling = element.getPreviousSibling();
+                while (previousSibling != null && previousSibling.getNodeType() != Node.COMMENT_NODE) {
+                    previousSibling = previousSibling.getPreviousSibling();
+                }
+                // Find the closest element node after the comment node
+                if (previousSibling != null) {
+                    Node nextSibling = previousSibling.getNextSibling();
+                    while (nextSibling != null && nextSibling.getNodeType() != Node.ELEMENT_NODE) {
+                        nextSibling = nextSibling.getNextSibling();
+                    }
+                    if (nextSibling != null) {
+                        Element closetElementToCommentNode = (Element) nextSibling;
+                        commentsMap.put(closetElementToCommentNode.getTagName(), previousSibling);
+                    }
+                }
             }
         }
 
@@ -97,9 +112,15 @@ public class SortPropertiesVersionMojo extends AbstractMojo {
             propertiesElement.removeChild(propertiesElement.getFirstChild());
         }
         skippedChildNodes.forEach(propertiesElement::appendChild);
-        sortedChildNodesMap.forEach((key, element) -> propertiesElement.appendChild(element));
+        sortedChildNodes.stream().sorted(Comparator.comparing(Element::getTagName)).forEach(element -> {
+            Node commentNode = commentsMap.get(element.getTagName());
+            if (commentNode != null) {
+                propertiesElement.appendChild(commentNode);
+            }
+            propertiesElement.appendChild(element);
+        });
 
-        getLog().info(String.format("Sorted %d <properties> element for module %s", sortedChildNodesMap.size(), projectArtifactId));
+        getLog().info(String.format("Sorted %d <properties> element for module %s", sortedChildNodes.size(), projectArtifactId));
     }
 
 }
