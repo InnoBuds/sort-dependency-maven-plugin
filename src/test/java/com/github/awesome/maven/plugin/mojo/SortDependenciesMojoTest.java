@@ -1,5 +1,6 @@
 package com.github.awesome.maven.plugin.mojo;
 
+import com.github.awesome.maven.plugin.util.DomHelper;
 import com.github.awesome.maven.plugin.util.XmlHelper;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
@@ -70,19 +71,16 @@ class SortDependenciesMojoTest {
             if (childNode.getNodeType() == Node.ELEMENT_NODE) {
                 Element dependencyElement = (Element) childNode;
                 elementUniqueKeyList.add(getDependencyElementUniqueKey(dependencyElement));
-                // Check for comment nodes before the <dependency> element
-                Node previousSibling = dependencyElement.getPreviousSibling();
-                while (previousSibling != null && previousSibling.getNodeType() != Node.COMMENT_NODE) {
-                    previousSibling = previousSibling.getPreviousSibling();
-                }
-                commentList.add(previousSibling == null ? null : previousSibling.getTextContent().trim());
+                // Check for comment node before the <dependency> element
+                Node commentNode = DomHelper.findCommentNodeOf(dependencyElement);
+                commentList.add(commentNode == null ? null : commentNode.getTextContent().trim());
             }
         }
 
-        assertNull(commentList.get(0));
-        assertEquals("https://mvnrepository.com/artifact/com.google.guava/guava", commentList.get(1));
+        assertNull(commentList.get(1));
+        assertNull(commentList.get(3));
+        assertEquals("https://mvnrepository.com/artifact/com.alibaba/fastjson", commentList.get(0));
         assertEquals("https://mvnrepository.com/artifact/org.apache.commons/commons-collections4", commentList.get(2));
-        assertEquals("https://mvnrepository.com/artifact/org.apache.commons/commons-lang3", commentList.get(3));
         assertEquals("com.alibaba:fastjson:1.2.83", elementUniqueKeyList.get(0));
         assertEquals("com.google:guava:33.3.1-jre", elementUniqueKeyList.get(1));
         assertEquals("org.apache.commons:commons-collections4:4.4", elementUniqueKeyList.get(2));

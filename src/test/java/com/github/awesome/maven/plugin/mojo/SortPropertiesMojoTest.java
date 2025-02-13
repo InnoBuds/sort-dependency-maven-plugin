@@ -54,4 +54,34 @@ class SortPropertiesMojoTest {
         verify(project).getArtifactId();
     }
 
+    @Test
+    void testExecute_PropertiesIncludeChildNodesButNoMavenPluginVersions() throws NoSuchFieldException, IllegalAccessException, MojoExecutionException {
+        SortPropertiesMojo mojo = new SortPropertiesMojo();
+        MavenProject project = mock(MavenProject.class);
+        File pomFile = new File("src/test/resources/test-pom-properties-include-child-nodes-but-no-maven-plugin-versions.xml");
+        when(project.getFile()).thenReturn(pomFile);
+        when(project.getArtifactId()).thenReturn("test-pom-properties-include-child-nodes");
+        Field projectField = SortPropertiesMojo.class.getDeclaredField("project");
+        projectField.setAccessible(true);
+        projectField.set(mojo, project);
+        mojo.execute();
+        verify(project).getFile();
+        verify(project).getArtifactId();
+    }
+
+    @Test
+    void testExecute_PropertiesIncludeChildNodesButNoDependencyVersions() throws NoSuchFieldException, IllegalAccessException, MojoExecutionException {
+        SortPropertiesMojo mojo = new SortPropertiesMojo();
+        MavenProject project = mock(MavenProject.class);
+        File pomFile = new File("src/test/resources/test-pom-properties-include-child-nodes-but-no-dependency-versions.xml");
+        when(project.getFile()).thenReturn(pomFile);
+        when(project.getArtifactId()).thenReturn("test-pom-properties-include-child-nodes");
+        Field projectField = SortPropertiesMojo.class.getDeclaredField("project");
+        projectField.setAccessible(true);
+        projectField.set(mojo, project);
+        mojo.execute();
+        verify(project).getFile();
+        verify(project).getArtifactId();
+    }
+
 }

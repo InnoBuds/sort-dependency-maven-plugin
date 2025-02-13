@@ -1,5 +1,6 @@
 package com.github.awesome.maven.plugin.mojo;
 
+import com.github.awesome.maven.plugin.util.DomHelper;
 import com.github.awesome.maven.plugin.util.XmlHelper;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -84,11 +85,8 @@ public class SortDependenciesMojo extends AbstractMojo {
                 final String elementUniqueKey = getDependencyElementUniqueKey(element);
                 dependencyElementMap.put(elementUniqueKey, element);
                 // Check for comment nodes before the <dependency> element
-                Node previousSibling = element.getPreviousSibling();
-                while (previousSibling != null && previousSibling.getNodeType() != Node.COMMENT_NODE) {
-                    previousSibling = previousSibling.getPreviousSibling();
-                }
-                commentsMap.put(elementUniqueKey, previousSibling);
+                Node commentNode = DomHelper.findCommentNodeOf(element);
+                commentsMap.put(elementUniqueKey, commentNode);
             }
         }
 
@@ -96,8 +94,7 @@ public class SortDependenciesMojo extends AbstractMojo {
         while (dependenciesElement.hasChildNodes()) {
             dependenciesElement.removeChild(dependenciesElement.getFirstChild());
         }
-        dependencyElementMap.forEach((key, element) -> {
-            final String elementUniqueKey = getDependencyElementUniqueKey(element);
+        dependencyElementMap.forEach((elementUniqueKey, element) -> {
             Node commentNode = commentsMap.get(elementUniqueKey);
             if (commentNode != null) {
                 dependenciesElement.appendChild(commentNode);

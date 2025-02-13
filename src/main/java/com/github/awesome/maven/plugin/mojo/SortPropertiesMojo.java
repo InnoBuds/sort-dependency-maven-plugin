@@ -1,5 +1,6 @@
 package com.github.awesome.maven.plugin.mojo;
 
+import com.github.awesome.maven.plugin.util.DomHelper;
 import com.github.awesome.maven.plugin.util.XmlHelper;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -13,9 +14,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * A Mojo that sorts the properties in the POM file of a Maven project.
@@ -27,6 +28,16 @@ import java.util.List;
  */
 @Mojo(name = "sort-properties", defaultPhase = LifecyclePhase.COMPILE)
 public class SortPropertiesMojo extends AbstractMojo {
+
+    /**
+     * Default comment for maven plugin versions.
+     */
+    private static final String MAVEN_PLUGIN_VERSION_COMMENT = "==================== maven plugin versions ====================";
+
+    /**
+     * Default comment for dependency versions.
+     */
+    private static final String DEPENDENCY_VERSION_COMMENT = "==================== dependency versions ======================";
 
     /**
      * The Maven project for which the dependencies should be sorted.
@@ -75,10 +86,12 @@ public class SortPropertiesMojo extends AbstractMojo {
         }
 
         // Collect all properties elements
-        List<Element> skippedChildElements = new ArrayList<>();
-        List<Element> dependencyVersionElements = new ArrayList<>();
-        List<Element> mavenPluginVersionElements = new ArrayList<>();
-        Node currentGroupCommentNode = null;
+        Map<String, Node> skippedElementCommentMap = new LinkedHashMap<>();
+        Map<String, Node> dependencyVersionElementCommentMap = new TreeMap<>();
+        Map<String, Node> mavenPluginVersionElementCommentMap = new TreeMap<>();
+        Map<String, Element> skippedElementMap = new LinkedHashMap<>();
+        Map<String, Element> dependencyVersionElementMap = new TreeMap<>();
+        Map<String, Element> mavenPluginVersionElementMap = new TreeMap<>();
         for (int i = 0, length = childNodes.getLength(); i < length; i++) {
             Node node = childNodes.item(i);
             if (node.getNodeType() == Node.ELEMENT_NODE) {
@@ -87,14 +100,19 @@ public class SortPropertiesMojo extends AbstractMojo {
                 // Skip elements that are not version properties or we don't want to sort
                 if (!elementTagName.endsWith(".version") || elementTagName.equals("java.version") || elementTagName.equals("kotlin.version")) {
                     getLog().info(String.format("Skipping element %s in <properties> element for module %s", elementTagName, projectArtifactId));
-                    skippedChildElements.add(element);
+                    Node commentNode = DomHelper.findCommentNodeOf(element);
+                    skippedElementCommentMap.put(elementTagName, commentNode);
+                    skippedElementMap.put(elementTagName, element);
                     continue;
                 }
                 // Group elements by their prefix or suffix
+                Node commentNode = DomHelper.findCommentNodeOf(element);
                 if (elementTagName.startsWith("maven-") || elementTagName.endsWith("-maven-plugin.version")) {
-                    mavenPluginVersionElements.add(element);
+                    mavenPluginVersionElementCommentMap.put(elementTagName, commentNode);
+                    mavenPluginVersionElementMap.put(elementTagName, element);
                 } else {
-                    dependencyVersionElements.add(element);
+                    dependencyVersionElementCommentMap.put(elementTagName, commentNode);
+                    dependencyVersionElementMap.put(elementTagName, element);
                 }
             }
         }
@@ -103,18 +121,36 @@ public class SortPropertiesMojo extends AbstractMojo {
         while (propertiesElement.hasChildNodes()) {
             propertiesElement.removeChild(propertiesElement.getFirstChild());
         }
-        skippedChildElements.forEach(propertiesElement::appendChild);
-        if (!mavenPluginVersionElements.isEmpty()) {
-            propertiesElement.appendChild(pomXmlDocument.createComment("==================== maven plugin versions ===================="));
-            mavenPluginVersionElements.stream().sorted(Comparator.comparing(Element::getTagName)).forEach(propertiesElement::appendChild);
-        }
-        if (!dependencyVersionElements.isEmpty()) {
-            propertiesElement.appendChild(pomXmlDocument.createComment("==================== dependency versions ======================"));
-            dependencyVersionElements.stream().sorted(Comparator.comparing(Element::getTagName)).forEach(propertiesElement::appendChild);
-        }
 
-        final int sortedElementsSize = mavenPluginVersionElements.size() + dependencyVersionElements.size();
-        getLog().info(String.format("Sorted %d <properties> element for module %s", sortedElementsSize, projectArtifactId));
+        skippedElementCommentMap.forEach((elementTagName, commentNode) -> {
+            if (commentNode != null) {
+                propertiesElement.appendChild(commentNode);
+            }
+            propertiesElement.appendChild(skippedElementMap.get(elementTagName));
+        });
+
+        if (!mavenPluginVersionElementCommentMap.isEmpty()) {
+            propertiesElement.appendChild(pomXmlDocument.createComment(MAVEN_PLUGIN_VERSION_COMMENT));
+        }
+        mavenPluginVersionElementCommentMap.forEach((elementTagName, commentNode) -> {
+            if (commentNode != null && !commentNode.getTextContent().trim().equals(MAVEN_PLUGIN_VERSION_COMMENT)) {
+                propertiesElement.appendChild(commentNode);
+            }
+            propertiesElement.appendChild(mavenPluginVersionElementMap.get(elementTagName));
+        });
+
+        if (!dependencyVersionElementCommentMap.isEmpty()) {
+            propertiesElement.appendChild(pomXmlDocument.createComment(DEPENDENCY_VERSION_COMMENT));
+        }
+        dependencyVersionElementCommentMap.forEach((elementTagName, commentNode) -> {
+            if (commentNode != null && !commentNode.getTextContent().trim().equals(DEPENDENCY_VERSION_COMMENT)) {
+                propertiesElement.appendChild(commentNode);
+            }
+            propertiesElement.appendChild(dependencyVersionElementMap.get(elementTagName));
+        });
+
+        final int sortedSize = mavenPluginVersionElementCommentMap.size() + dependencyVersionElementCommentMap.size();
+        getLog().info(String.format("Sorted %d <properties> element for module %s", sortedSize, projectArtifactId));
     }
 
 }

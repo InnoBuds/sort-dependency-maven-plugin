@@ -1,9 +1,11 @@
 package com.github.awesome.maven.plugin.util;
 
+import org.apache.maven.plugin.MojoExecutionException;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import java.io.File;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class XmlHelperTest {
 
@@ -11,6 +13,13 @@ class XmlHelperTest {
     void testNewInstance() {
         UnsupportedOperationException e = assertThrows(UnsupportedOperationException.class, XmlHelper::new);
         assertEquals("Utility class should not be instantiated", e.getMessage());
+    }
+
+    @Test
+    void testParse() {
+        File pomFile = new File("src/test/resources/no-such-file.xml");
+        MojoExecutionException e = assertThrows(MojoExecutionException.class, () -> XmlHelper.parse(pomFile));
+        assertTrue(e.getMessage().contains("Error parsing pom.xml"));
     }
 
 }

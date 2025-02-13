@@ -27,8 +27,9 @@ import java.io.IOException;
 public final class XmlHelper {
 
     /**
-     * Private constructor to prevent instantiation of the utility class.
+     * Non-public constructor to prevent instantiation of the utility class.
      * This class should not be instantiated.
+     * package-private access for testing.
      */
     XmlHelper() {
         throw new UnsupportedOperationException("Utility class should not be instantiated");
