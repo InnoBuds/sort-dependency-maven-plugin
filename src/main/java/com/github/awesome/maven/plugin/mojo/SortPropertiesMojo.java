@@ -21,7 +21,7 @@ import java.util.TreeMap;
 /**
  * A Mojo that sorts the properties in the POM file of a Maven project.
  * This Mojo sorts the child elements of &lt;properties&gt; element by the tag name of each child element.
- * The sorting is done during the `compile` phase of the Maven build lifecycle.
+ * By default, the sorting is done during the `compile` phase of the Maven build lifecycle.
  *
  * @author <a href="https://github.com/codeboyzhou">codeboyzhou</a>
  * @since 1.1.0
@@ -40,7 +40,7 @@ public class SortPropertiesMojo extends AbstractMojo {
     private static final String DEPENDENCY_VERSION_COMMENT = "==================== dependency versions ======================";
 
     /**
-     * The Maven project for which the dependencies should be sorted.
+     * The Maven project for which the elements should be sorted.
      * This parameter is injected by Maven.
      */
     @Parameter(defaultValue = "${project}", readonly = true, required = true)

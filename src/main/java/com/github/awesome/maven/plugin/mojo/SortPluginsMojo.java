@@ -19,15 +19,15 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * A Mojo that sorts the dependencies in the POM file of a Maven project.
- * This Mojo sorts both the &lt;dependencies&gt; elements by the groupId and artifactId of each dependency.
+ * A Mojo that sorts the maven plugins in the POM file of a Maven project.
+ * This Mojo sorts both the &lt;plugins&gt; elements by the groupId and artifactId of each plugin.
  * By default, the sorting is done during the `compile` phase of the Maven build lifecycle.
  *
  * @author <a href="https://github.com/codeboyzhou">codeboyzhou</a>
  * @since 1.0.0
  */
-@Mojo(name = "sort-dependencies", defaultPhase = LifecyclePhase.COMPILE)
-public class SortDependenciesMojo extends AbstractMojo {
+@Mojo(name = "sort-plugins", defaultPhase = LifecyclePhase.COMPILE)
+public class SortPluginsMojo extends AbstractMojo {
 
     /**
      * The Maven project for which the elements should be sorted.
@@ -37,8 +37,8 @@ public class SortDependenciesMojo extends AbstractMojo {
     private MavenProject project;
 
     /**
-     * Executes the Mojo to sort dependencies in the project's POM file.
-     * This method parses the POM file, sorts the &lt;dependencies&gt; sections,
+     * Executes the Mojo to sort maven plugins in the project's POM file.
+     * This method parses the POM file, sorts the &lt;plugins&gt; sections,
      * and then writes the modified POM file back to disk.
      *
      * @throws MojoExecutionException If there is an error during the execution of the Mojo,
@@ -49,60 +49,60 @@ public class SortDependenciesMojo extends AbstractMojo {
         File pomFile = project.getFile();
         Document pomXmlDocument = XmlHelper.parse(pomFile);
         final String projectArtifactId = project.getArtifactId();
-        sortDependencyElement(pomXmlDocument, projectArtifactId);
+        sortPluginElement(pomXmlDocument, projectArtifactId);
         XmlHelper.write(pomFile, pomXmlDocument);
     }
 
     /**
-     * Sorts the &lt;dependency&gt; elements in the POM file.
+     * Sorts the &lt;plugin&gt; elements in the POM file.
      * The sorting is done alphabetically by groupId, and then by artifactId.
      *
      * @param pomXmlDocument    The parsed POM document.
      * @param projectArtifactId The artifactId of the project, used for logging purposes.
      */
-    private void sortDependencyElement(Document pomXmlDocument, final String projectArtifactId) {
-        getLog().info(String.format("Sorting <dependencies> element for module %s", projectArtifactId));
-        NodeList dependenciesNode = pomXmlDocument.getElementsByTagName("dependencies");
-        if (dependenciesNode.getLength() == 0) {
-            getLog().info(String.format("No <dependencies> element found in module %s", projectArtifactId));
+    private void sortPluginElement(Document pomXmlDocument, final String projectArtifactId) {
+        getLog().info(String.format("Sorting <plugins> element for module %s", projectArtifactId));
+        NodeList pluginsNode = pomXmlDocument.getElementsByTagName("plugins");
+        if (pluginsNode.getLength() == 0) {
+            getLog().info(String.format("No <plugins> element found in module %s", projectArtifactId));
             return;
         }
 
-        Element dependenciesElement = (Element) dependenciesNode.item(0);
-        if (dependenciesElement.getElementsByTagName("dependency").getLength() == 0) {
-            getLog().info("No <dependency> element found in module " + projectArtifactId);
+        Element pluginsElement = (Element) pluginsNode.item(0);
+        if (pluginsElement.getElementsByTagName("plugin").getLength() == 0) {
+            getLog().info("No <plugin> element found in module " + projectArtifactId);
             return;
         }
 
-        // Collect all dependency elements
-        NodeList dependenciesElementChildNodes = dependenciesElement.getChildNodes();
-        TreeMap<String, Element> dependencyElementMap = new TreeMap<>();
+        // Collect all plugin elements
+        NodeList pluginsElementChildNodes = pluginsElement.getChildNodes();
+        TreeMap<String, Element> pluginElementMap = new TreeMap<>();
         Map<String, Node> commentsMap = new HashMap<>();
-        for (int i = 0, length = dependenciesElementChildNodes.getLength(); i < length; i++) {
-            Node node = dependenciesElementChildNodes.item(i);
+        for (int i = 0, length = pluginsElementChildNodes.getLength(); i < length; i++) {
+            Node node = pluginsElementChildNodes.item(i);
             if (node.getNodeType() == Node.ELEMENT_NODE) {
                 Element element = (Element) node;
                 final String elementUniqueKey = DomHelper.getElementUniqueKey(element);
-                dependencyElementMap.put(elementUniqueKey, element);
-                // Check for comment nodes before the <dependency> element
+                pluginElementMap.put(elementUniqueKey, element);
+                // Check for comment nodes before the <plugin> element
                 Node commentNode = DomHelper.findCommentNodeOf(element);
                 commentsMap.put(elementUniqueKey, commentNode);
             }
         }
 
-        // Clear all existing dependencies and append the sorted ones
-        while (dependenciesElement.hasChildNodes()) {
-            dependenciesElement.removeChild(dependenciesElement.getFirstChild());
+        // Clear all existing plugins and append the sorted ones
+        while (pluginsElement.hasChildNodes()) {
+            pluginsElement.removeChild(pluginsElement.getFirstChild());
         }
-        dependencyElementMap.forEach((elementUniqueKey, element) -> {
+        pluginElementMap.forEach((elementUniqueKey, element) -> {
             Node commentNode = commentsMap.get(elementUniqueKey);
             if (commentNode != null) {
-                dependenciesElement.appendChild(commentNode);
+                pluginsElement.appendChild(commentNode);
             }
-            dependenciesElement.appendChild(element);
+            pluginsElement.appendChild(element);
         });
 
-        getLog().info(String.format("Sorted %d <dependency> element for module %s", dependencyElementMap.size(), projectArtifactId));
+        getLog().info(String.format("Sorted %d <plugin> element for module %s", pluginElementMap.size(), projectArtifactId));
     }
 
 }

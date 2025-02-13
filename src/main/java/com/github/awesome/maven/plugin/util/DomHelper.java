@@ -25,6 +25,18 @@ public final class DomHelper {
     }
 
     /**
+     * Returns a unique key for an element based on its groupId and artifactId.
+     *
+     * @param element The element.
+     * @return A unique key for the element.
+     */
+    public static String getElementUniqueKey(Element element) {
+        final String groupId = element.getElementsByTagName("groupId").item(0).getTextContent();
+        final String artifactId = element.getElementsByTagName("artifactId").item(0).getTextContent();
+        return groupId + ":" + artifactId;
+    }
+
+    /**
      * Finds the comment node that precedes the given element.
      * This method searches for the previous sibling of the element that is a comment node.
      * If no comment node is found, this method returns {@code null}.
