@@ -85,80 +85,88 @@ public class SortPropertiesMojo extends AbstractMojo {
             return;
         }
 
-        // Collect all properties elements
-        Map<String, Node> skippedElementCommentMap = new LinkedHashMap<>();
-        Map<String, Node> dependencyVersionElementCommentMap = new TreeMap<>();
-        Map<String, Node> mavenPluginVersionElementCommentMap = new TreeMap<>();
-        Map<String, Element> skippedElementMap = new LinkedHashMap<>();
-        Map<String, Element> dependencyVersionElementMap = new TreeMap<>();
-        Map<String, Element> mavenPluginVersionElementMap = new TreeMap<>();
-        groupingPropertiesChildNodes(
-            projectArtifactId,
-            childNodes,
-            skippedElementCommentMap,
-            mavenPluginVersionElementCommentMap,
-            dependencyVersionElementCommentMap,
-            skippedElementMap,
-            mavenPluginVersionElementMap,
-            dependencyVersionElementMap
-        );
+        // Collect and group all the properties elements
+        ChildNodeGroup childNodeGroup = groupingPropertiesChildNodes(projectArtifactId, childNodes);
 
         // Clear all existing properties and re-arrange them
         DomHelper.removeAllChildNodesOf(propertiesElement);
 
-        skippedElementCommentMap.forEach((elementTagName, commentNode) -> {
+        childNodeGroup.skippedElementCommentMap.forEach((elementTagName, commentNode) -> {
             if (commentNode != null) {
                 propertiesElement.appendChild(commentNode);
             }
-            propertiesElement.appendChild(skippedElementMap.get(elementTagName));
+            propertiesElement.appendChild(childNodeGroup.skippedElementMap.get(elementTagName));
         });
 
-        if (!mavenPluginVersionElementCommentMap.isEmpty()) {
+        if (!childNodeGroup.mavenPluginVersionElementCommentMap.isEmpty()) {
             propertiesElement.appendChild(pomXmlDocument.createComment(MAVEN_PLUGIN_VERSION_COMMENT));
         }
-        mavenPluginVersionElementCommentMap.forEach((elementTagName, commentNode) -> {
+        childNodeGroup.mavenPluginVersionElementCommentMap.forEach((elementTagName, commentNode) -> {
             if (commentNode != null && !commentNode.getTextContent().trim().equals(MAVEN_PLUGIN_VERSION_COMMENT)) {
                 propertiesElement.appendChild(commentNode);
             }
-            propertiesElement.appendChild(mavenPluginVersionElementMap.get(elementTagName));
+            propertiesElement.appendChild(childNodeGroup.mavenPluginVersionElementMap.get(elementTagName));
         });
 
-        if (!dependencyVersionElementCommentMap.isEmpty()) {
+        if (!childNodeGroup.dependencyVersionElementCommentMap.isEmpty()) {
             propertiesElement.appendChild(pomXmlDocument.createComment(DEPENDENCY_VERSION_COMMENT));
         }
-        dependencyVersionElementCommentMap.forEach((elementTagName, commentNode) -> {
+        childNodeGroup.dependencyVersionElementCommentMap.forEach((elementTagName, commentNode) -> {
             if (commentNode != null && !commentNode.getTextContent().trim().equals(DEPENDENCY_VERSION_COMMENT)) {
                 propertiesElement.appendChild(commentNode);
             }
-            propertiesElement.appendChild(dependencyVersionElementMap.get(elementTagName));
+            propertiesElement.appendChild(childNodeGroup.dependencyVersionElementMap.get(elementTagName));
         });
 
-        final int sortedSize = mavenPluginVersionElementCommentMap.size() + dependencyVersionElementCommentMap.size();
+        final int sortedSize = childNodeGroup.mavenPluginVersionElementCommentMap.size() + childNodeGroup.dependencyVersionElementCommentMap.size();
         getLog().info(String.format("Sorted %d <properties> element for module %s", sortedSize, projectArtifactId));
+    }
+
+    /**
+     * The child node group for properties element.
+     */
+    private static class ChildNodeGroup {
+        /**
+         * The map to store skipped element comments.
+         */
+        Map<String, Node> skippedElementCommentMap = new LinkedHashMap<>();
+
+        /**
+         * The map to store maven plugin version element comments.
+         */
+        Map<String, Node> dependencyVersionElementCommentMap = new TreeMap<>();
+
+        /**
+         * The map to store dependency version element comments.
+         */
+        Map<String, Node> mavenPluginVersionElementCommentMap = new TreeMap<>();
+
+        /**
+         * The map to store skipped elements.
+         */
+        Map<String, Element> skippedElementMap = new LinkedHashMap<>();
+
+        /**
+         * The map to store maven plugin version elements.
+         */
+        Map<String, Element> dependencyVersionElementMap = new TreeMap<>();
+
+        /**
+         * The map to store dependency version elements.
+         */
+        Map<String, Element> mavenPluginVersionElementMap = new TreeMap<>();
     }
 
     /**
      * Grouping properties child nodes by their prefix or suffix.
      * For reducing the Cognitive Complexity of the method {@link #sortPropertiesElement(Document, String)}.
      *
-     * @param projectArtifactId                   The artifactId of the project, used for logging purposes.
-     * @param childNodes                          The child nodes of the properties element.
-     * @param skippedElementCommentMap            The map to store skipped element comments.
-     * @param mavenPluginVersionElementCommentMap The map to store maven plugin version element comments.
-     * @param dependencyVersionElementCommentMap  The map to store dependency version element comments.
-     * @param skippedElementMap                   The map to store skipped elements.
-     * @param mavenPluginVersionElementMap        The map to store maven plugin version elements.
-     * @param dependencyVersionElementMap         The map to store dependency version elements.
+     * @param projectArtifactId The artifactId of the project, used for logging purposes.
+     * @param childNodes        The child nodes of the properties element.
+     * @return The child node group object that stores the grouped child nodes.
      */
-    private void groupingPropertiesChildNodes(String projectArtifactId,
-                                              NodeList childNodes,
-                                              Map<String, Node> skippedElementCommentMap,
-                                              Map<String, Node> mavenPluginVersionElementCommentMap,
-                                              Map<String, Node> dependencyVersionElementCommentMap,
-                                              Map<String, Element> skippedElementMap,
-                                              Map<String, Element> mavenPluginVersionElementMap,
-                                              Map<String, Element> dependencyVersionElementMap) {
-
+    private ChildNodeGroup groupingPropertiesChildNodes(String projectArtifactId, NodeList childNodes) {
+        ChildNodeGroup childNodeGroup = new ChildNodeGroup();
         for (int i = 0, length = childNodes.getLength(); i < length; i++) {
             Node node = childNodes.item(i);
             if (node.getNodeType() == Node.ELEMENT_NODE) {
@@ -168,22 +176,22 @@ public class SortPropertiesMojo extends AbstractMojo {
                 if (!elementTagName.endsWith(".version") || elementTagName.equals("java.version") || elementTagName.equals("kotlin.version")) {
                     getLog().info(String.format("Skipping element %s in <properties> element for module %s", elementTagName, projectArtifactId));
                     Node commentNode = DomHelper.findCommentNodeOf(element);
-                    skippedElementCommentMap.put(elementTagName, commentNode);
-                    skippedElementMap.put(elementTagName, element);
+                    childNodeGroup.skippedElementCommentMap.put(elementTagName, commentNode);
+                    childNodeGroup.skippedElementMap.put(elementTagName, element);
                     continue;
                 }
                 // Group elements by their prefix or suffix
                 Node commentNode = DomHelper.findCommentNodeOf(element);
                 if (elementTagName.startsWith("maven-") || elementTagName.endsWith("-maven-plugin.version")) {
-                    mavenPluginVersionElementCommentMap.put(elementTagName, commentNode);
-                    mavenPluginVersionElementMap.put(elementTagName, element);
+                    childNodeGroup.mavenPluginVersionElementCommentMap.put(elementTagName, commentNode);
+                    childNodeGroup.mavenPluginVersionElementMap.put(elementTagName, element);
                 } else {
-                    dependencyVersionElementCommentMap.put(elementTagName, commentNode);
-                    dependencyVersionElementMap.put(elementTagName, element);
+                    childNodeGroup.dependencyVersionElementCommentMap.put(elementTagName, commentNode);
+                    childNodeGroup.dependencyVersionElementMap.put(elementTagName, element);
                 }
             }
         }
-
+        return childNodeGroup;
     }
 
 }
