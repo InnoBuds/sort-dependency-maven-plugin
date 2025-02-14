@@ -61,4 +61,16 @@ public final class DomHelper {
         return null;
     }
 
+    /**
+     * Removes all child nodes of the given element.
+     * This method removes all child nodes of the element, including text nodes, comment nodes, and other elements.
+     *
+     * @param element The element from which to remove all child nodes.
+     */
+    public static void removeAllChildNodesOf(Element element) {
+        while (element.hasChildNodes()) {
+            element.removeChild(element.getFirstChild());
+        }
+    }
+
 }

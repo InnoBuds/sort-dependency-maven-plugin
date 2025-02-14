@@ -24,7 +24,7 @@ import java.util.TreeMap;
  * By default, the sorting is done during the `compile` phase of the Maven build lifecycle.
  *
  * @author <a href="https://github.com/codeboyzhou">codeboyzhou</a>
- * @since 1.0.0
+ * @since 1.1.0
  */
 @Mojo(name = "sort-plugins", defaultPhase = LifecyclePhase.COMPILE)
 public class SortPluginsMojo extends AbstractMojo {
@@ -91,9 +91,7 @@ public class SortPluginsMojo extends AbstractMojo {
         }
 
         // Clear all existing plugins and append the sorted ones
-        while (pluginsElement.hasChildNodes()) {
-            pluginsElement.removeChild(pluginsElement.getFirstChild());
-        }
+        DomHelper.removeAllChildNodesOf(pluginsElement);
         pluginElementMap.forEach((elementUniqueKey, element) -> {
             Node commentNode = commentsMap.get(elementUniqueKey);
             if (commentNode != null) {

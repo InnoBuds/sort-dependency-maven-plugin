@@ -91,9 +91,7 @@ public class SortDependenciesMojo extends AbstractMojo {
         }
 
         // Clear all existing dependencies and append the sorted ones
-        while (dependenciesElement.hasChildNodes()) {
-            dependenciesElement.removeChild(dependenciesElement.getFirstChild());
-        }
+        DomHelper.removeAllChildNodesOf(dependenciesElement);
         dependencyElementMap.forEach((elementUniqueKey, element) -> {
             Node commentNode = commentsMap.get(elementUniqueKey);
             if (commentNode != null) {
