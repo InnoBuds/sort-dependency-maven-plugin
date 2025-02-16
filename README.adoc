@@ -1,0 +1,29 @@
+= sort-dependency-maven-plugin image:https://img.shields.io/github/actions/workflow/status/awesome-java-web/sort-dependency-maven-plugin/maven.yml[build] image:https://img.shields.io/codecov/c/github/awesome-java-web/sort-dependency-maven-plugin?color=brightgreen[coverage] image:https://sonarcloud.io/api/project_badges/measure?project=awesome-java-web_sort-dependency-maven-plugin&metric=sqale_rating[maintainability] image:https://sonarcloud.io/api/project_badges/measure?project=awesome-java-web_sort-dependency-maven-plugin&metric=code_smells[code_smells]
+
+This Maven plugin automatically sorts and standardizes your `pom.xml` files. It ensures consistent formatting, improves readability and maintainability, and reduces merge conflicts in collaborative development environments.
+
+== Requirements
+- Java 8 or later  
+- Maven 3.8.1 or later  
+
+== Usage
+For Maven projects, configure the plugin in your `pom.xml`:
+[source,xml]
+----
+<plugin>
+    <groupId>io.github.awesome-java-web</groupId>
+    <artifactId>sort-dependency-maven-plugin</artifactId>
+    <version>1.1.0</version>
+    <executions>
+        <execution>
+            <!-- defaults to the `compile` phase if no configuration is provided -->
+            <phase>clean</phase>
+            <goals>
+                <goal>sort-dependencies</goal>
+                <goal>sort-properties</goal>
+                <goal>sort-plugins</goal>
+            </goals>
+        </execution>
+    </executions>
+</plugin>
+----
