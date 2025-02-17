@@ -1,0 +1,119 @@
+= sort-dependency-maven-plugin image:https://img.shields.io/github/actions/workflow/status/awesome-java-web/sort-dependency-maven-plugin/maven.yml[build] image:https://img.shields.io/codecov/c/github/awesome-java-web/sort-dependency-maven-plugin?color=brightgreen[coverage] image:https://sonarcloud.io/api/project_badges/measure?project=awesome-java-web_sort-dependency-maven-plugin&metric=code_smells[code_smells]
+
+这款 `Maven` 插件可以自动整理并排序项目中的 `pom.xml` 文件，以使其更加规范化和统一化。它能确保在多人合作开发的环境下 `pom.xml` 文件也能保持一致的格式，提高文件的可读性和可维护性，避免由多人合作带来的 `pom.xml` 修改冲突以及其它麻烦。
+
+== 环境要求
+- Java 8 及其以上版本  
+- Maven 3.8.1 及其以上版本  
+
+== 用法介绍
+在你的 `pom.xml` 文件中添加以下插件依赖和配置（一般我们将插件配置在根 `pom` 文件中）:
+[source,xml]
+----
+<plugin>
+    <groupId>io.github.awesome-java-web</groupId>
+    <artifactId>sort-dependency-maven-plugin</artifactId>
+    <version>1.1.0</version>
+    <executions>
+        <execution>
+            <!-- 该插件默认在 `compile` 阶段执行，除非这里做了明确配置 -->
+            <phase>clean</phase>
+            <goals>
+                <goal>sort-dependencies</goal>
+                <goal>sort-properties</goal>
+                <goal>sort-plugins</goal>
+            </goals>
+        </execution>
+    </executions>
+</plugin>
+----
+
+== Goals 介绍
+
+=== sort-dependencies
+这个 `goal` 用来排序所有的 `<dependency>` 元素。按照字符串的字母升序排列，先排 `<groupId>` 再排 `<artifactId>`，同时也会移除掉重复的 `<dependency>` 元素。以下是排序前后的 `pom.xml` 片段示例：
+
+排序前
+[source,xml]
+----
+<dependency>
+    <groupId>org.apache.commons</groupId>
+    <artifactId>commons-lang3</artifactId>
+    <version>3.17.0</version>
+</dependency>
+<dependency>
+    <groupId>org.apache.commons</groupId>
+    <artifactId>commons-lang3</artifactId>
+    <version>3.17.0</version>
+</dependency>
+<dependency>
+    <groupId>org.apache.commons</groupId>
+    <artifactId>commons-collections4</artifactId>
+    <version>4.4</version>
+</dependency>
+<dependency>
+    <groupId>com.google</groupId>
+    <artifactId>guava</artifactId>
+    <version>33.3.1-jre</version>
+</dependency>
+----
+
+排序后
+[source,xml]
+----
+<dependency>
+    <groupId>com.google</groupId>
+    <artifactId>guava</artifactId>
+    <version>33.3.1-jre</version>
+</dependency>
+<dependency>
+    <groupId>org.apache.commons</groupId>
+    <artifactId>commons-collections4</artifactId>
+    <version>4.4</version>
+</dependency>
+<dependency>
+    <groupId>org.apache.commons</groupId>
+    <artifactId>commons-lang3</artifactId>
+    <version>3.17.0</version>
+</dependency>
+----
+
+=== sort-properties
+这个 `goal` 用来排序 `<properties>` 元素里面的依赖包版本号变量声明，按字符串的字母升序排列。版本号变量声明约定为以 `.version` 结尾，举个例子：比如 `<guava.version>33.3.1-jre</guava.version>`，再比如一些 `Maven` 官方插件 `<maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>` 和第三方的 `Maven` 插件 `<jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>`。同时它还会给这些版本变量分组，具体可以参看下面的代码片段示例。如果有变量未能满足这个约定配置，它们将保持原样并在分组时被放在 `<properties>` 元素最上面的区域。
+
+=== 特别说明：一些特殊的编程语言版本声明将不被处理
+比如像 `<java.version>1.8</java.version>` 和 `<kotlin.version>2.1.0</kotlin.version>`，虽然它们满足约定的规则。
+
+=== 以下是经过了排序和分组的代码片段示例：
+排序前
+[source,xml]
+----
+<properties>
+    <java.version>1.8</java.version>
+    <maven.compiler.source>${java.version}</maven.compiler.source>
+    <maven.compiler.target>${java.version}</maven.compiler.target>
+    <junit5.version>5.10.2</junit5.version>
+    <guava.version>33.3.1-jre</guava.version>
+    <maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>
+    <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
+</properties>
+----
+
+排序后
+[source,xml]
+----
+<properties>
+    <java.version>1.8</java.version>
+    <maven.compiler.source>${java.version}</maven.compiler.source>
+    <maven.compiler.target>${java.version}</maven.compiler.target>
+    <!--==================== maven plugin versions ====================-->
+    <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
+    <maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>
+    <!--==================== dependency versions ======================-->
+    <guava.version>33.3.1-jre</guava.version>
+    <junit5.version>5.10.2</junit5.version>
+</properties>
+----
+
+=== sort-plugins
+这个 `goal` 所做的事情和 `sort-dependencies` 一模一样，唯一的区别是它只负责处理 `<plugin>` 元素。
