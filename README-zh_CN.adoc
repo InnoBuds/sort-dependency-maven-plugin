@@ -1,5 +1,7 @@
 = sort-dependency-maven-plugin image:https://img.shields.io/github/actions/workflow/status/awesome-java-web/sort-dependency-maven-plugin/maven.yml[build] image:https://img.shields.io/codecov/c/github/awesome-java-web/sort-dependency-maven-plugin?color=brightgreen[coverage] image:https://sonarcloud.io/api/project_badges/measure?project=awesome-java-web_sort-dependency-maven-plugin&metric=code_smells[code_smells]
 
+https://github.com/awesome-java-web/sort-dependency-maven-plugin/blob/main/README.adoc[English Document]
+
 这款 `Maven` 插件可以自动整理并排序项目中的 `pom.xml` 文件，以使其更加规范化和统一化。它能确保在多人合作开发的环境下 `pom.xml` 文件也能保持一致的格式，提高文件的可读性和可维护性，避免由多人合作带来的 `pom.xml` 修改冲突以及其它麻烦。
 
 == 环境要求
