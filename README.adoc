@@ -27,3 +27,93 @@ For Maven projects, configure the plugin in your `pom.xml`:
     </executions>
 </plugin>
 ----
+
+== Goals Overview
+
+=== sort-dependencies
+This goal sorts all `<dependency>` elements alphabetically, first by `<groupId>` and then by `<artifactId>`, while also removing any duplicate `<dependency>` elements. As shown in the following code snippet:
+
+before sorting
+[source,xml]
+----
+<dependency>
+    <groupId>org.apache.commons</groupId>
+    <artifactId>commons-lang3</artifactId>
+    <version>3.17.0</version>
+</dependency>
+<dependency>
+    <groupId>org.apache.commons</groupId>
+    <artifactId>commons-lang3</artifactId>
+    <version>3.17.0</version>
+</dependency>
+<dependency>
+    <groupId>org.apache.commons</groupId>
+    <artifactId>commons-collections4</artifactId>
+    <version>4.4</version>
+</dependency>
+<dependency>
+    <groupId>com.google</groupId>
+    <artifactId>guava</artifactId>
+    <version>33.3.1-jre</version>
+</dependency>
+----
+
+after sorting
+[source,xml]
+----
+<dependency>
+    <groupId>com.google</groupId>
+    <artifactId>guava</artifactId>
+    <version>33.3.1-jre</version>
+</dependency>
+<dependency>
+    <groupId>org.apache.commons</groupId>
+    <artifactId>commons-collections4</artifactId>
+    <version>4.4</version>
+</dependency>
+<dependency>
+    <groupId>org.apache.commons</groupId>
+    <artifactId>commons-lang3</artifactId>
+    <version>3.17.0</version>
+</dependency>
+----
+
+=== sort-properties
+This goal sorts the `<properties>` variables alphabetically based on the suffix `.version` in the tag name. For example, it handles variables like `<guava.version>33.3.1-jre</guava.version>`, the official Maven plugin like `<maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>`, and third-party Maven plugin like `<jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>`. It groups the variables by dependency versions and Maven plugin versions. Any variable that doesn't match this rule will remain unchanged and be placed at the top group.
+
+=== special note: this goal skips certain special variables
+such as `<java.version>1.8</java.version>` and `<kotlin.version>2.1.0</kotlin.version>`, even though they follow the naming pattern.
+
+=== for the variables that follow the naming pattern, you can refer to the code snippet below:
+before sorting
+[source,xml]
+----
+<properties>
+    <java.version>1.8</java.version>
+    <maven.compiler.source>${java.version}</maven.compiler.source>
+    <maven.compiler.target>${java.version}</maven.compiler.target>
+    <junit5.version>5.10.2</junit5.version>
+    <guava.version>33.3.1-jre</guava.version>
+    <maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>
+    <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
+</properties>
+----
+
+after sorting
+[source,xml]
+----
+<properties>
+    <java.version>1.8</java.version>
+    <maven.compiler.source>${java.version}</maven.compiler.source>
+    <maven.compiler.target>${java.version}</maven.compiler.target>
+    <!--==================== maven plugin versions ====================-->
+    <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
+    <maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>
+    <!--==================== dependency versions ======================-->
+    <guava.version>33.3.1-jre</guava.version>
+    <junit5.version>5.10.2</junit5.version>
+</properties>
+----
+
+=== sort-plugins
+What this goal does is in line with `sort-dependencies`, with the key difference being that it handles `<plugin>` tags.
