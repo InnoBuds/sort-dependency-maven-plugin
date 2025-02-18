@@ -147,7 +147,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven-surefire-plugin.version}</version>
                 <configuration>
-                    <!-- suppress UnresolvedMavenProperty for IntelliJ IDEA -->
+                    <!--suppress UnresolvedMavenProperty for IntelliJ IDEA-->
                     <argLine>${jacoco.agent.argLine}</argLine>
                 </configuration>
             </plugin>
