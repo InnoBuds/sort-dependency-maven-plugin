@@ -9,7 +9,7 @@
     <version>1.1.0</version>
 
     <name>sort-dependency-maven-plugin</name>
-    <description>Automatically sort dependencies in the pom.xml</description>
+    <description>This Maven plugin automatically sorts and standardizes your pom.xml files</description>
     <url>https://github.com/awesome-java-web/sort-dependency-maven-plugin</url>
 
     <organization>
