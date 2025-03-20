@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>io.github.awesome-java-web</groupId>
+    <groupId>io.github.innobuds</groupId>
     <artifactId>sort-dependency-maven-plugin</artifactId>
     <packaging>maven-plugin</packaging>
-    <version>1.1.1-SNAPSHOT</version>
+    <version>1.1.1</version>
 
     <name>sort-dependency-maven-plugin</name>
     <description>This Maven plugin automatically sorts and standardizes your pom.xml files</description>
-    <url>https://github.com/awesome-java-web/sort-dependency-maven-plugin</url>
+    <url>https://github.com/innobuds/sort-dependency-maven-plugin</url>
 
     <organization>
-        <name>Awesome Java Web</name>
-        <url>https://github.com/awesome-java-web</url>
+        <name>InnoBuds</name>
+        <url>https://github.com/innobuds</url>
     </organization>
 
     <licenses>
@@ -29,32 +30,21 @@
         <developer>
             <name>codeboyzhou</name>
             <email>imzhouchen@gmail.com</email>
-            <organization>Awesome Java Web</organization>
-            <organizationUrl>https://github.com/awesome-java-web</organizationUrl>
+            <organization>InnoBuds</organization>
+            <organizationUrl>https://github.com/innobuds</organizationUrl>
         </developer>
     </developers>
 
     <scm>
-        <url>https://github.com/awesome-java-web/sort-dependency-maven-plugin</url>
-        <connection>scm:git:git://github.com/awesome-java-web/sort-dependency-maven-plugin.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com/awesome-java-web/sort-dependency-maven-plugin.git</developerConnection>
+        <url>https://github.com/innobuds/sort-dependency-maven-plugin</url>
+        <connection>scm:git:git://github.com/innobuds/sort-dependency-maven-plugin.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/innobuds/sort-dependency-maven-plugin.git</developerConnection>
     </scm>
 
     <issueManagement>
         <system>GitHub</system>
-        <url>https://github.com/awesome-java-web/sort-dependency-maven-plugin/issues</url>
+        <url>https://github.com/innobuds/sort-dependency-maven-plugin/issues</url>
     </issueManagement>
-
-    <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-            <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2</url>
-        </repository>
-    </distributionManagement>
 
     <properties>
         <java.version>1.8</java.version>
@@ -63,6 +53,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <!--==================== maven plugin versions ====================-->
+        <central-publishing-maven-plugin.version>0.7.0</central-publishing-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
         <maven-core.version>3.8.1</maven-core.version>
         <maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>
@@ -72,7 +63,6 @@
         <maven-plugin-plugin.version>3.8.1</maven-plugin-plugin.version>
         <maven-source-plugin.version>3.3.0</maven-source-plugin.version>
         <maven-surefire-plugin.version>3.2.3</maven-surefire-plugin.version>
-        <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
         <!--==================== dependency versions ======================-->
         <junit5.version>5.10.2</junit5.version>
         <mockito.version>4.11.0</mockito.version>
@@ -81,28 +71,13 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>io.github.awesome-java-web</groupId>
-                <artifactId>sort-dependency-maven-plugin</artifactId>
-                <version>${project.version}</version>
-                <executions>
-                    <execution>
-                        <phase>clean</phase>
-                        <goals>
-                            <goal>sort-dependencies</goal>
-                            <goal>sort-properties</goal>
-                            <goal>sort-plugins</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
                 <version>${maven-gpg-plugin.version}</version>
                 <executions>
                     <execution>
                         <id>sign-artifacts</id>
-                        <phase>deploy</phase>
+                        <phase>verify</phase>
                         <goals>
                             <goal>sign</goal>
                         </goals>
@@ -116,7 +91,6 @@
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
-                        <phase>verify</phase>
                         <goals>
                             <goal>jar</goal>
                         </goals>
@@ -135,7 +109,6 @@
                 <executions>
                     <execution>
                         <id>attach-sources</id>
-                        <phase>verify</phase>
                         <goals>
                             <goal>jar-no-fork</goal>
                         </goals>
@@ -178,14 +151,14 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.sonatype.plugins</groupId>
-                <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>${nexus-staging-maven-plugin.version}</version>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <version>${central-publishing-maven-plugin.version}</version>
                 <extensions>true</extensions>
                 <configuration>
-                    <serverId>ossrh</serverId>
-                    <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
-                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                    <autoPublish>true</autoPublish>
+                    <publishingServerId>central</publishingServerId>
+                    <deploymentName>${project.groupId}:${project.artifactId}:${project.version}</deploymentName>
                 </configuration>
             </plugin>
         </plugins>
