@@ -1,4 +1,4 @@
-package com.github.awesome.maven.plugin.util;
+package com.github.innobuds.maven.plugin.util;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.junit.jupiter.api.Test;

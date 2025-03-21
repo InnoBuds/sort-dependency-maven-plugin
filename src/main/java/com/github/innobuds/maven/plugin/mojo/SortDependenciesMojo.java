@@ -1,7 +1,7 @@
-package com.github.awesome.maven.plugin.mojo;
+package com.github.innobuds.maven.plugin.mojo;
 
-import com.github.awesome.maven.plugin.util.DomHelper;
-import com.github.awesome.maven.plugin.util.XmlHelper;
+import com.github.innobuds.maven.plugin.util.DomHelper;
+import com.github.innobuds.maven.plugin.util.XmlHelper;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;

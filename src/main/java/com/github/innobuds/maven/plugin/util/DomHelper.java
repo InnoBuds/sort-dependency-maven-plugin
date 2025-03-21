@@ -1,4 +1,4 @@
-package com.github.awesome.maven.plugin.util;
+package com.github.innobuds.maven.plugin.util;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
